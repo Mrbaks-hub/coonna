@@ -1,0 +1,31 @@
+final CollectionReference productsCollectionReference = db.collection("Products");
+        Query query = productsCollectionReference.orderBy("orderCount", Query.Direction.DESCENDING);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (DocumentSnapshot document: task.getResult()){
+                        ProductDetailsModel products = document.toObject(ProductDetailsModel.class);
+                        String prodName = products.getProductName();
+                        String prodDesc = products.getProductDescription();
+                        double prodPrice = products.getProductPrice();
+                        double prodCutPrice = products.getProductCuttedPrice();
+                        String prodID = products.getProductID();
+                        String storeID = products.getStoreID();
+                        int prodStock = products.getProductStock();
+                        HashMap<String, String> prodImage = products.getProductImage();
+
+                        if (prodStock > 0) {
+                            productDetailsModelList.add(new ProductDetailsModel(prodImage, prodID, storeID, prodName, prodDesc, prodPrice, prodCutPrice, false, title));
+                        }
+                    }
+                    moreProductsAdapter = new MoreProductsAdapter(productDetailsModelList);
+                    recyclerView.setAdapter(moreProductsAdapter);
+                    lastVisible = task.getResult().getDocuments().get(task.getResult().size() -1);
+                    moreProductsAdapter.notifyDataSetChanged();
+
+                }else {
+                    Log.d("DB_Error", "Error getting documents: ", task.getException());
+                }
+            }
+        });
