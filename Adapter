@@ -1,0 +1,150 @@
+public class MoreProductsAdapter extends RecyclerView.Adapter {
+    private List<ProductDetailsModel> productDetailsModelList;
+
+    public MoreProductsAdapter(List<ProductDetailsModel> productDetailsModelList) {
+        this.productDetailsModelList = productDetailsModelList;
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.more_products_item_layout, parent, false);
+        return new ProductDetailsHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        HashMap<String, String> productImage = productDetailsModelList.get(position).getProductImage();
+        int productQuantity = productDetailsModelList.get(position).getProductQuantity();
+        String prodTitle = productDetailsModelList.get(position).getProductName();
+        String prodID = productDetailsModelList.get(position).getProductID();
+        String storeID = productDetailsModelList.get(position).getStoreID();
+        String productDescription = productDetailsModelList.get(position).getProductDescription();
+        String layoutType = productDetailsModelList.get(position).getLayoutType();
+        double productPrice = productDetailsModelList.get(position).getProductPrice();
+        double productCuttedPrice = productDetailsModelList.get(position).getProductCuttedPrice();
+        boolean wishliststatus = productDetailsModelList.get(position).isWishlistStatus();
+        ((ProductDetailsHolder) holder).setDetails(productImage, prodTitle, storeID, productDescription, productPrice, productCuttedPrice, productQuantity, wishliststatus, layoutType, prodID);
+    }
+
+    @Override
+    public int getItemCount() {
+        return productDetailsModelList.size();
+    }
+
+    public class ProductDetailsHolder extends RecyclerView.ViewHolder {
+
+        private FirebaseFirestore db = FirebaseFirestore.getInstance();
+        private ImageView prodImage;
+        private TextView prodName, prodPrice, prodCutted, prodDesc, strName, prodQuantity, ratings;
+        private View strike;
+        private Button wishbtn;
+        private boolean ALREADY_ADDED_TO_WISHLIST = false;
+
+        public ProductDetailsHolder(@NonNull View itemView) {
+            super(itemView);
+            prodImage = itemView.findViewById(R.id.more_prod_img);
+            prodName = itemView.findViewById(R.id.more_prod_name);
+            prodPrice = itemView.findViewById(R.id.more_products_price);
+            prodCutted = itemView.findViewById(R.id.more_products_cutted);
+            prodDesc = itemView.findViewById(R.id.more_products_short_description);
+            strName = itemView.findViewById(R.id.more_products_store_name);
+            prodQuantity = itemView.findViewById(R.id.item_quantity);
+            strike = itemView.findViewById(R.id.strike);
+            wishbtn = itemView.findViewById(R.id.wish_btn);
+            ratings = itemView.findViewById(R.id.more_product_featured_rating);
+        }
+
+        public void setDetails(HashMap<String, String> productImage, final String prodTitle, String storeID, String productDescription, double productPrice, double productCuttedPrice, int productQuantity, final boolean wishliststatus, String layoutType, final String prodID) {
+            String image = productImage.get("image_1");
+            Glide.with(itemView.getContext()).load(image).apply(new RequestOptions().placeholder(R.mipmap.loader)).into(prodImage);
+
+            NumberFormat cf1 = NumberFormat.getCurrencyInstance(new Locale("en", "PH"));
+            prodName.setText(prodTitle);
+
+            //////////////////////////////////////////////////RETRIEVE DATA OF STORES//////////////////////////////////////////////////
+            if (layoutType.equals("Featured Products")){
+                db.collection("Stores").document(storeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()){
+                            DocumentSnapshot snapshot = task.getResult();
+                            String storeName = snapshot.get("storeName").toString();
+                            strName.setText(storeName+"'s Product");
+                        }
+                    }
+                });
+            }
+            //////////////////////////////////////////////////RETRIEVE DATA OF STORES//////////////////////////////////////////////////
+
+            db.collection("Products")
+                    .document(prodID)
+                    .collection("Orders")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        List<Integer> intList = new ArrayList<Integer>();
+                        for (DocumentSnapshot snapshot: task.getResult()){
+                            long ratingValues = (long) snapshot.get("ratingValue");
+                            int crv = (int) ratingValues;
+                            intList.add(crv);
+                        }
+
+                        int sums = 0;
+                        for (int n = 0; n < intList.size(); n++){
+                            sums = sums+intList.get(n);
+                        }
+                        Log.d("life", sums+" = "+prodID);
+                        //double rating = sums / intList.size();
+                        DecimalFormat df = new DecimalFormat("##.#");
+                        //ratings.setText(df.format(rating));
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    ratings.setText("0");
+                    Log.e("DB_Error", e.getMessage());
+                }
+            });
+            //////////////////////////////////////////////////RETRIEVE DATA OF SUBCOLLECTION ORDERS//////////////////////////////////////////////////
+
+            prodPrice.setText(cf1.format(productPrice));
+            prodDesc.setText(productDescription);
+            String quantity = Integer.toString(productQuantity);
+            prodQuantity.setText(quantity);
+            if (productCuttedPrice == 0) {
+                prodCutted.setVisibility(View.GONE);
+                strike.setVisibility(View.GONE);
+            } else {
+                prodCutted.setVisibility(View.VISIBLE);
+                strike.setVisibility(View.VISIBLE);
+                prodCutted.setText(cf1.format(productCuttedPrice));
+            }
+            if (wishliststatus) {
+                wishbtn.setBackgroundResource(R.drawable.heart_shaded);
+                wishbtn.setBackgroundTintList(itemView.getResources().getColorStateList(R.color.red));
+            } else {
+                wishbtn.setBackgroundResource(R.drawable.heart_outline);
+                wishbtn.setBackgroundTintList(itemView.getResources().getColorStateList(R.color.red));
+            }
+
+            wishbtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (ALREADY_ADDED_TO_WISHLIST) {
+                        ALREADY_ADDED_TO_WISHLIST = false;
+                        wishbtn.setBackgroundResource(R.drawable.heart_outline);
+                        wishbtn.setBackgroundTintList(itemView.getResources().getColorStateList(R.color.red));
+                    } else {
+                        ALREADY_ADDED_TO_WISHLIST = true;
+                        wishbtn.setBackgroundResource(R.drawable.heart_shaded);
+                        wishbtn.setBackgroundTintList(itemView.getResources().getColorStateList(R.color.red));
+                    }
+                }
+            });
+        }
+    }
+}
