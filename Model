@@ -1,0 +1,138 @@
+private int productQuantity, productStock;
+    private String storeID, productName, productDescription, productID;
+    private boolean wishlistStatus;
+    private double productPrice, productCuttedPrice;
+    private HashMap<String, String> productImage;
+    private String layoutType;
+    private int orderCount;
+
+    public ProductDetailsModel() {
+    }
+
+    public ProductDetailsModel(HashMap<String, String> productImage, String productID, String storeID, String productName, String productDescription, double productPrice, double productCuttedPrice, boolean wishlistStatus, String layoutType) {
+        this.productImage = productImage;
+        this.storeID = storeID;
+        this.productName = productName;
+        this.productDescription = productDescription;
+        this.productPrice = productPrice;
+        this.productCuttedPrice = productCuttedPrice;
+        this.wishlistStatus = wishlistStatus;
+        this.productID = productID;
+        this.layoutType = layoutType;
+    }
+
+    private List<ReviewsAndRatingsModel> reviewsAndRatingsModelList;
+    private List<ProductSpecificationModel> productSpecificationModelList;
+    private List<ProductImageModel> productImageModelList;
+
+    public String getProductID() {
+        return productID;
+    }
+
+    public void setProductID(String productID) {
+        this.productID = productID;
+    }
+
+    public int getProductStock() {
+        return productStock;
+    }
+
+    public void setProductStock(int productStock) {
+        this.productStock = productStock;
+    }
+
+    public String getStoreID() {
+        return storeID;
+    }
+
+    public void setStoreID(String storeID) {
+        this.storeID = storeID;
+    }
+
+    public List<ReviewsAndRatingsModel> getReviewsAndRatingsModelList() {
+        return reviewsAndRatingsModelList;
+    }
+
+    public void setReviewsAndRatingsModelList(List<ReviewsAndRatingsModel> reviewsAndRatingsModelList) {
+        this.reviewsAndRatingsModelList = reviewsAndRatingsModelList;
+    }
+
+    public List<ProductSpecificationModel> getProductSpecificationModelList() {
+        return productSpecificationModelList;
+    }
+
+    public void setProductSpecificationModelList(List<ProductSpecificationModel> productSpecificationModelList) {
+        this.productSpecificationModelList = productSpecificationModelList;
+    }
+
+    public HashMap<String, String> getProductImage() {
+        return productImage;
+    }
+
+    public void setProductImage(HashMap<String, String> productImage) {
+        this.productImage = productImage;
+    }
+
+    public int getProductQuantity() {
+        return productQuantity;
+    }
+
+    public void setProductQuantity(int productQuantity) {
+        this.productQuantity = productQuantity;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
+    }
+
+    public double getProductPrice() {
+        return productPrice;
+    }
+
+    public void setProductPrice(double productPrice) {
+        this.productPrice = productPrice;
+    }
+
+    public double getProductCuttedPrice() {
+        return productCuttedPrice;
+    }
+
+    public void setProductCuttedPrice(double productCuttedPrice) {
+        this.productCuttedPrice = productCuttedPrice;
+    }
+
+    public boolean isWishlistStatus() {
+        return wishlistStatus;
+    }
+
+    public void setWishlistStatus(boolean wishlistStatus) {
+        this.wishlistStatus = wishlistStatus;
+    }
+
+    public int getOrderCount() {
+        return orderCount;
+    }
+
+    public void setOrderCount(int orderCount) {
+        this.orderCount = orderCount;
+    }
+
+    public String getLayoutType() {
+        return layoutType;
+    }
+
+    public void setLayoutType(String layoutType) {
+        this.layoutType = layoutType;
+    }
